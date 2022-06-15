@@ -1,7 +1,7 @@
 function HomePage() {
   return (
     <>
-      <div className='container'>
+      <div className='container-2xl'>
         <div className='space-y-4'>
           <h1 className='text-2xl font-bold'>
             Lorem, ipsum dolor. <br />
@@ -17,7 +17,7 @@ function HomePage() {
           </p>
         </div>
       </div>
-      <div className='container-xl mt-20'>
+      <div className='container-4xl mt-20'>
         <img src='/desk.jpg' alt='desk' />
       </div>
     </>
