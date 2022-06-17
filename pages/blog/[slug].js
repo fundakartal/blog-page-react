@@ -49,7 +49,7 @@ const PostPage = ({ frontMatter, mdxSource }) => {
         <p>{description}</p>
         <p>
           {tags.map((tag) => (
-            <Link href={`/blog?tag=${tag.toLowerCase()}`} key={tag}>
+            <Link href={`/tag/${tag.toLowerCase()}`} key={tag}>
               <a className='inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2'>
                 {tag}
               </a>
