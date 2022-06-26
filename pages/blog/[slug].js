@@ -60,7 +60,7 @@ export default function PostPage({ frontMatter, mdxSource, slug }) {
         <p>
           {tags.map((tag) => (
             <Link href={`/tag/${tag.toLowerCase()}`} key={tag}>
-              <span className='inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2'>
+              <span className='inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 cursor-pointer'>
                 {tag.toLowerCase()}
               </span>
             </Link>
