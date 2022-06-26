@@ -8,18 +8,29 @@ import Button from '../../components/button'
 import Link from 'next/link'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useState, useEffect } from 'react'
+import Form from '../../components/form'
+import Comments from '../../components/comments'
 
 export default function PostPage({ frontMatter, mdxSource, slug }) {
   const { title, description, tags } = frontMatter
-  const {
-    loginWithRedirect,
-    logout,
-    isAuthenticated,
-    user,
-    getAccessTokenSilently,
-  } = useAuth0()
+  const { getAccessTokenSilently } = useAuth0()
   const [text, setText] = useState('')
   const [url, setUrl] = useState(null)
+  const [comments, setComments] = useState([])
+
+  const fetchComment = async () => {
+    const query = new URLSearchParams({ url })
+    const newURL = `/api/comment?${query.toString()}`
+    const response = await fetch(newURL, {
+      method: 'GET',
+    })
+    const data = await response.json()
+    setComments(data)
+  }
+  useEffect(() => {
+    if (!url) return
+    fetchComment()
+  }, [url])
 
   useEffect(() => {
     const url = window.location.origin + window.location.pathname
@@ -30,14 +41,15 @@ export default function PostPage({ frontMatter, mdxSource, slug }) {
     e.preventDefault()
     const userToken = await getAccessTokenSilently()
 
-    const response = await fetch('/api/comment', {
+    await fetch('/api/comment', {
       method: 'POST',
       body: JSON.stringify({ text, userToken, url }),
       headers: {
         'Content-Type': 'application/json',
       },
     })
-    const data = await response.json()
+    fetchComment()
+    setText('')
   }
 
   return (
@@ -62,42 +74,8 @@ export default function PostPage({ frontMatter, mdxSource, slug }) {
           />
         </div>
       </article>
-      <form className='mt-10' onSubmit={onSubmit}>
-        <textarea
-          rows='2'
-          className='border border-gray-300 w-full rounded block px-2 py-1'
-          onChange={(e) => setText(e.target.value)}
-        ></textarea>
-        <div className='mt-4'>
-          {isAuthenticated ? (
-            <div className='flex items-center justify-between gap-x-2'>
-              <button className='bg-blue-600 px-2 py-1 rounded text-white'>
-                Send
-              </button>
-              <div className='flex items-center gap-x-2'>
-                <img src={user.picture} width={40} className='rounded-full' />
-                <span className='font-semibold'>{user.name}</span>
-                <button
-                  onClick={() =>
-                    logout({
-                      returnTo: `${process.env.NEXT_PUBLIC_URL}/blog/${slug}`,
-                    })
-                  }
-                >
-                  &#128473;
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button
-              className='bg-blue-600 px-2 py-1 rounded text-white'
-              onClick={() => loginWithRedirect()}
-            >
-              Login
-            </button>
-          )}
-        </div>
-      </form>
+      <Form onSubmit={onSubmit} text={text} setText={setText} />
+      <Comments comments={comments} />
     </div>
   )
 }
