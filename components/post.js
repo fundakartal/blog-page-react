@@ -5,7 +5,7 @@ export default function Post({ post, index }) {
   const { title, description, date, tags, thumbnailUrl } = post.frontMatter
   return (
     <Link href={'/blog/' + post.slug} passHref key={index}>
-      <a className='flex flex-col md:flex-row max-w-[500px] md:max-w-full rounded-lg bg-white shadow-lg'>
+      <div className='flex flex-col md:flex-row max-w-[500px] md:max-w-full rounded-lg bg-white shadow-lg cursor-pointer'>
         <div className='md:max-w-[50%] text-[0]'>
           <Image
             src={thumbnailUrl}
@@ -30,7 +30,7 @@ export default function Post({ post, index }) {
           </p>
           <p className='text-gray-600 text-xs'>{date}</p>
         </article>
-      </a>
+      </div>
     </Link>
   )
 }
