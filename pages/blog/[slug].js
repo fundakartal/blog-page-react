@@ -7,10 +7,39 @@ import SyntaxHighlighter from 'react-syntax-highlighter'
 import Button from '../../components/button'
 import Link from 'next/link'
 import { useAuth0 } from '@auth0/auth0-react'
+import { useState, useEffect } from 'react'
 
 export default function PostPage({ frontMatter, mdxSource, slug }) {
   const { title, description, tags } = frontMatter
-  const { loginWithRedirect, logout, isAuthenticated, user } = useAuth0()
+  const {
+    loginWithRedirect,
+    logout,
+    isAuthenticated,
+    user,
+    getAccessTokenSilently,
+  } = useAuth0()
+  const [text, setText] = useState('')
+  const [url, setUrl] = useState(null)
+
+  useEffect(() => {
+    const url = window.location.origin + window.location.pathname
+    setUrl(url)
+  }, [])
+
+  const onSubmit = async (e) => {
+    e.preventDefault()
+    const userToken = await getAccessTokenSilently()
+
+    const response = await fetch('/api/comment', {
+      method: 'POST',
+      body: JSON.stringify({ text, userToken, url }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    const data = await response.json()
+  }
+
   return (
     <div className='container-2xl mt-4'>
       <article className='space-y-6'>
@@ -19,9 +48,9 @@ export default function PostPage({ frontMatter, mdxSource, slug }) {
         <p>
           {tags.map((tag) => (
             <Link href={`/tag/${tag.toLowerCase()}`} key={tag}>
-              <a className='inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2'>
+              <span className='inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2'>
                 {tag.toLowerCase()}
-              </a>
+              </span>
             </Link>
           ))}
         </p>
@@ -33,10 +62,11 @@ export default function PostPage({ frontMatter, mdxSource, slug }) {
           />
         </div>
       </article>
-      <form className='mt-10'>
+      <form className='mt-10' onSubmit={onSubmit}>
         <textarea
           rows='2'
           className='border border-gray-300 w-full rounded block px-2 py-1'
+          onChange={(e) => setText(e.target.value)}
         ></textarea>
         <div className='mt-4'>
           {isAuthenticated ? (
