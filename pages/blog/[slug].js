@@ -6,51 +6,13 @@ import matter from 'gray-matter'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import Button from '../../components/button'
 import Link from 'next/link'
-import { useAuth0 } from '@auth0/auth0-react'
-import { useState, useEffect } from 'react'
 import Form from '../../components/form'
 import Comments from '../../components/comments'
+import useComment from '../../hooks/useComment'
 
 export default function PostPage({ frontMatter, mdxSource, slug }) {
   const { title, description, tags } = frontMatter
-  const { getAccessTokenSilently } = useAuth0()
-  const [text, setText] = useState('')
-  const [url, setUrl] = useState(null)
-  const [comments, setComments] = useState([])
-
-  const fetchComment = async () => {
-    const query = new URLSearchParams({ url })
-    const newURL = `/api/comment?${query.toString()}`
-    const response = await fetch(newURL, {
-      method: 'GET',
-    })
-    const data = await response.json()
-    setComments(data)
-  }
-  useEffect(() => {
-    if (!url) return
-    fetchComment()
-  }, [url])
-
-  useEffect(() => {
-    const url = window.location.origin + window.location.pathname
-    setUrl(url)
-  }, [])
-
-  const onSubmit = async (e) => {
-    e.preventDefault()
-    const userToken = await getAccessTokenSilently()
-
-    await fetch('/api/comment', {
-      method: 'POST',
-      body: JSON.stringify({ text, userToken, url }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    fetchComment()
-    setText('')
-  }
+  const [comments, onSubmit, text, setText] =useComment()
 
   return (
     <div className='container-2xl mt-4'>
