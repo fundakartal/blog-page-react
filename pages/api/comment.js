@@ -1,12 +1,18 @@
 import { nanoid } from 'nanoid'
 import Redis from 'ioredis'
+import Boom from '@hapi/boom'
+
+function errorResponse(res, error) {
+  const { output } = error
+  return res.status(output.statusCode).json(output.payload)
+}
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { text, userToken, url } = req.body
 
     if (!text || !userToken || !url) {
-      return res.status(400).json({ message: 'Missing required fields' })
+      return errorResponse(res, Boom.badData('Missing required fields'))
     }
 
     const userResponse = await fetch(
